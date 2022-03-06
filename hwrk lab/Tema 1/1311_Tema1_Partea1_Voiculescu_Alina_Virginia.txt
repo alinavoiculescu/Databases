@@ -1,0 +1,9 @@
+Partea I
+
+1. A)
+2. D)
+3. C)
+4. C)
+5. Cererea returneaza o coloana denumita to_char(NEXT_DAY(sysdate, 'MONDAY'), 'DD-MON-YY') in care va fi scrisa, pe prima linie, data 09-MAR-09, respectiv urmatoarea zi de luni, in formatul ales.
+6. Pentru a realiza o operatie de join asupra a 4 tabele, numarul minim de conditii care ar trebui sa apara intr-o clauza WHERE este 3.
+7. D)

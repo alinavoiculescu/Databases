@@ -1,0 +1,221 @@
+------------
+-----11-----
+------------
+--Formulati în  limbaj  natural si  implementati 5 cereri  SQL  complexe ce  vor  utiliza,  în ansamblul lor, urmatoarele elemente:
+----•operatie join pe cel putin 4 tabele
+----•filtrare la nivel de linii
+----•subcereri sincronizate în care intervin cel putin 3 tabele
+----•subcereri nesincronizate în care intervin cel putin 3 tabele
+----•grupari de date, functii grup, filtrare la nivel de grupuri
+----•ordonari
+----•utilizarea a cel putin 2 functii pe siruri de caractere, 2 functii pe date calendaristice, a functiilor NVL si DECODE, a cel putin unei expresii CASE
+----•utilizarea a cel putin 1 bloc de cerere (clauza WITH)
+
+
+--1
+--Afisati denumirea tarilor în care se afla închisorile în care au mers/vor merge hotii a caror sentinta a fost stabilita de judecatorul care are a treia litera din prenume 'w'
+--si lungimea numelui egala cu 8. Ordonati-le descrescator dupa numele tarii. Afisati si data acordarii sentintei. Rezultatul va avea înca o coloana în care va fi afisata
+--prima zi de Luni de dupa data acordarii sentintei daca ziua este numar par, iar daca este numar impar, va fi afisata data corespunzatoare ultimei zile din luna din care
+--data acordarii face parte. Coloana din urma va fi numita 'Par/Impar'. Vor fi doua tipuri de solutii: decode si case.
+
+--decode
+select denumire_tara, data_acordarii,
+decode(mod(to_char(data_acordarii, 'DD'), 2),
+0, to_char(next_day(data_acordarii, 'Monday')),
+to_char(last_day(data_acordarii))) "Par/Impar"
+from tara
+join oras using(id_tara)
+join inchisoare using(id_oras)
+join sentinta using(id_inchisoare)
+join judecator_sentinta_hot using(id_sentinta)
+join judecator using(id_judecator)
+where substr(prenume_judecator, 3, 1) = 'w'
+and length(nume_judecator) = 8
+order by 1 desc;
+
+--case
+select denumire_tara, data_acordarii,
+case mod(to_char(data_acordarii, 'DD'), 2)
+     when 0 then to_char(next_day(data_acordarii, 'Monday'))
+     else to_char(last_day(data_acordarii))
+end "Par/Impar"
+from tara
+join oras using(id_tara)
+join inchisoare using(id_oras)
+join sentinta using(id_inchisoare)
+join judecator_sentinta_hot using(id_sentinta)
+join judecator using(id_judecator)
+where substr(prenume_judecator, 3, 1) = 'w'
+and length(nume_judecator) = 8
+order by 1 desc;
+
+--2
+--Afisati id-ul fiecarui jaf care a avut mai mult de un martor, numarul de martori, cât si numele celui mai mic martor care a asistat la jaf. Ultima coloana se va numi Mezin.
+with martor_age as (select id_martor, nvl(varsta_martor, 1000) as AGE
+                    from martor)
+select id_jaf, count(id_martor) "Nr. martori", (select nume_martor
+                                                from martor
+                                                where varsta_martor = (select min(age)
+                                                                       from martor_age
+                                                                       join martor_jaf using (id_martor)
+                                                                       where id_jaf = mj.id_jaf)) "Mezin"
+from martor_jaf mj
+group by id_jaf
+having count(*) > 1;
+
+--3
+--Afisati numele si prenumele politistului care a arestat cei mai multi raufacatori, alaturi de primul hot de banci prins de acesta.
+
+with prim_hot as (select id_politist, min(data_arestarii) as DataArest
+                  from arestare_hot
+                  group by id_politist),
+politist_1 as (select id_politist, nume_politist, prenume_politist
+               from politist
+               join arestare_hot using (id_politist)
+               group by id_politist, nume_politist, prenume_politist
+               having count(*) = (select max(count(*))
+                                  from politist
+                                  join arestare_hot using(id_politist)
+                                  group by id_politist))
+select nume_politist, prenume_politist, nume_hot || ' ' || prenume_hot as "Nume hot"
+from politist_1 p
+join arestare_hot a on (a.id_politist = p.id_politist)
+join hot_de_banci h on (a.id_hot = h.id_hot)
+where h.id_hot = (select id_hot
+                  from arestare_hot
+                  where data_arestarii = (select DataArest
+                                          from prim_hot
+                                          where id_politist = p.id_politist))
+group by nume_politist, prenume_politist, nume_hot || ' ' || prenume_hot;
+                   
+--4
+--Gasiti cuplul martor la unul dintre jafuri si afisati numele de familie al acestora.
+select distinct nume_martor
+from martor m
+where nume_martor in (select nume_martor
+                      from martor
+                      where m.prenume_martor != prenume_martor);
+                      
+--5
+--Afisati numele fiecarui hot, alaturi de denumirea bancii pe care a jefuit-o si de arma cu care a amenintat populatia participanta la actiune.
+
+select distinct nume_hot || ' ' || prenume_hot as "Nume hot", denumire_banca, arma
+from hot_de_banci
+join hot_jaf using(id_hot)
+join jaf using (id_jaf)
+join banca using (id_banca);
+
+
+-------------
+-----12------
+-------------
+--Implementarea a 3 operatii de actualizare sau suprimare a datelor utilizând subcereri.
+
+
+--UPDATE
+---Am aflat vârsta martorului ce are valoarea NULL în coloana vârsta_martor. El are 27 de ani. Actualizati baza de date, modificând valoarea vârstei martorului.
+
+update martor
+set varsta_martor = 27
+where id_martor = (select id_martor
+                   from martor
+                   where nvl(varsta_martor, -1) = -1);
+
+rollback;
+
+--UPDATE
+--Politia din Madrid a aflat ca tânara Spitznagel Tania si-a schimbat numele în Pretzel pentru a putea scapa din închisoare.
+--Actualizati-i numele înainte sa încerce sa scape!
+
+update hot_de_banci
+set nume_hot = 'Pretzel'
+where id_hot = (select id_hot
+                from hot_de_banci
+                where nume_hot = 'Spitznagel'
+                and prenume_hot = 'Tania');
+                
+rollback;
+
+--DELETE
+--Hmm..cineva a introdus în tabelul martor o persoana care nu a fost martora la niciun jaf. Stergeti-o!
+
+delete from martor
+where id_martor not in (select distinct id_martor
+                        from martor_jaf);
+
+rollback;
+
+
+------------
+-----13-----
+------------
+--Crearea unei secvente ce va fi utilizata în inserarea înregistrarilor în tabele (punctul 10).
+
+create sequence seq_politist
+start with 605
+increment by 1
+nocycle
+nocache;
+
+--Exemplu de inserare date cu ajutorul secventei create
+insert into politist (id_politist, id_sectie, nume_politist, prenume_politist, varsta_politist, data_angajarii) 
+values (seq_politist.nextval, 600, 'LastNameSeq', 'FirstNameSeq', 100, to_date(sysdate, 'DD-MON-YY'));
+
+rollback;
+
+
+------------
+-----14-----
+------------
+---Crearea unui index care sa optimizeze o cerere de tip cautare cu 2 criterii. Specificati cererea
+
+--CERERE: Afisati id-ul politistului care a arestat hotul cu id-ul 409 intr-o zi de 15.
+
+create index idx_arestare_hot on
+arestare_hot(id_hot, id_politist, data_arestarii);
+
+select id_politist
+from arestare_hot
+where id_hot = 409
+and data_arestarii like '15-%';
+
+
+------------
+-----15-----
+------------
+---Formulati în limbaj natural si implementati în SQL: o cerere ce utilizeaza operatia outerjoin pe minimum 4 tabele si doua cereri ce utilizeaza operatia division.
+
+----OUTER JOIN
+--Afisati tara in care se afla banca jefuita pe data de 7 aprilie 2002 si l-a avut ca martor pe martorul cu id-ul 305.
+select denumire_tara
+from tara
+left outer join oras using(id_tara)
+left outer join banca using(id_oras)
+left outer join jaf using(id_banca)
+left outer join martor_jaf using(id_jaf)
+where data_jaf = '07-APR-02'
+and id_martor = 305;
+
+----DIVISION
+--Sa se obtina id-urile politistilor care i-au arestat de-alungul vremii pe fiecare dintre hotii cu id-urile 405 si 406.
+select distinct id_politist
+from arestare_hot
+where id_hot in (select distinct id_hot
+                 from hot_de_banci
+                 where id_hot in (405, 406))
+group by id_politist
+having count(*) = (select count(*)
+                   from hot_de_banci
+                   where id_hot in (405, 406));
+
+----DIVISION
+--Sa se obtina id-urile martorilor care au participat la fiecare dintre jafurile cu id-urile 800 si 801.
+select distinct id_martor
+from martor_jaf
+where id_jaf in (select distinct id_jaf
+                 from jaf
+                 where id_jaf in (800, 801))
+group by id_martor
+having count(*) = (select count(*)
+                 from jaf
+                 where id_jaf in (800, 801));

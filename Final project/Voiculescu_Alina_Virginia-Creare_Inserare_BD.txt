@@ -1,0 +1,426 @@
+create table tara(
+    id_tara varchar2(5) primary key,
+    denumire_tara varchar2(30) not null
+);
+
+insert into tara (id_tara, denumire_tara) 
+values ('RO', 'Romania');
+
+insert into tara (id_tara, denumire_tara) 
+values ('BE', 'Belgia');
+
+insert into tara (id_tara, denumire_tara) 
+values ('ES', 'Spania');
+
+insert into tara (id_tara, denumire_tara) 
+values ('JP', 'Japonia');
+
+insert into tara (id_tara, denumire_tara) 
+values ('DE', 'Germania');
+
+create table oras(
+    id_oras number(6),
+    id_tara varchar2(5) references tara(id_tara),
+    denumire_oras varchar2(30) not null,
+    constraint pk_oras primary key (id_oras, id_tara)
+);
+
+insert into oras (id_oras, id_tara, denumire_oras) 
+values (1, 'JP', 'Osaka');
+
+insert into oras (id_oras, id_tara, denumire_oras) 
+values (2, 'RO', 'Bucuresti');
+
+insert into oras (id_oras, id_tara, denumire_oras) 
+values (3, 'DE', 'Berlin');
+
+insert into oras (id_oras, id_tara, denumire_oras) 
+values (4, 'BE', 'Saint-Gilles');
+
+insert into oras (id_oras, id_tara, denumire_oras) 
+values (5, 'ES', 'Madrid');
+
+create table inchisoare(
+    id_inchisoare number(6) primary key,
+    denumire_inchisoare varchar2(30) not null,
+    id_oras number(6),
+    id_tara varchar(5),
+    foreign key (id_oras, id_tara) references oras(id_oras, id_tara)
+);
+
+insert into inchisoare (id_inchisoare, denumire_inchisoare, id_oras, id_tara) 
+values (124, 'Inchisoarea Aranjuez', 5, 'ES');
+
+insert into inchisoare (id_inchisoare, denumire_inchisoare, id_oras, id_tara) 
+values (125, 'Inchisoarea Osaka', 1, 'JP');
+
+insert into inchisoare (id_inchisoare, denumire_inchisoare, id_oras, id_tara) 
+values (126, 'Inchisoarea St. Gilles', 4, 'BE');
+
+insert into inchisoare (id_inchisoare, denumire_inchisoare, id_oras, id_tara) 
+values (127, 'Penitenciarul Bucuresti-Jilava', 2, 'RO');
+
+insert into inchisoare (id_inchisoare, denumire_inchisoare, id_oras, id_tara) 
+values (128, 'Inchisoarea Plotzensee', 3, 'DE');
+
+create table sentinta(
+    id_sentinta number(6) primary key,
+    luni_de_inchisoare number(10, 2) not null,
+    id_inchisoare number(6),
+    foreign key (id_inchisoare) references inchisoare(id_inchisoare)
+);
+
+insert into sentinta (id_sentinta, luni_de_inchisoare, id_inchisoare) 
+values (475, 120, 124);
+
+insert into sentinta (id_sentinta, luni_de_inchisoare, id_inchisoare) 
+values (476, 135, 128);
+
+insert into sentinta (id_sentinta, luni_de_inchisoare, id_inchisoare) 
+values (477, 200, 126);
+
+insert into sentinta (id_sentinta, luni_de_inchisoare, id_inchisoare) 
+values (478, 80, 125);
+
+insert into sentinta (id_sentinta, luni_de_inchisoare, id_inchisoare) 
+values (479, 110, 127);
+
+create table judecator(
+    id_judecator number(6) primary key,
+    nume_judecator varchar2(30) not null,
+    prenume_judecator varchar2(30) not null,
+    varsta number(6),
+    denumire_tribunal varchar2(30) not null
+);
+
+insert into judecator (id_judecator, nume_judecator, prenume_judecator, varsta, denumire_tribunal) 
+values (100, 'Gordon', 'Gilbert', 43, 'Tribunalul Bucuresti');
+
+insert into judecator (id_judecator, nume_judecator, prenume_judecator, varsta, denumire_tribunal) 
+values (101, 'Vincent', 'Horace', 32, 'Tribunalul Bruxelles');
+
+insert into judecator (id_judecator, nume_judecator, prenume_judecator, varsta, denumire_tribunal) 
+values (102, 'Villanova', 'Renata', 36, 'Tribunalul Madrid');
+
+insert into judecator (id_judecator, nume_judecator, prenume_judecator, varsta, denumire_tribunal) 
+values (103, 'Lehmann', 'Emmerich', 58, 'Tribunalul Berlin');
+
+insert into judecator (id_judecator, nume_judecator, prenume_judecator, varsta, denumire_tribunal) 
+values (104, 'Takayuki', 'Kawakami', 40, 'Tribunalul Tokyo');
+
+create table hot_de_banci(
+    id_hot number(6) primary key,
+    nume_hot varchar2(30) not null,
+    prenume_hot varchar2(30),
+    varsta_hot number(6)
+);
+
+insert into hot_de_banci (id_hot, nume_hot, prenume_hot, varsta_hot) 
+values (405, 'Osborne', 'Kizzy', 45);
+
+insert into hot_de_banci (id_hot, nume_hot, prenume_hot, varsta_hot) 
+values (406, 'Armando', 'Anika', 54);
+
+insert into hot_de_banci (id_hot, nume_hot, prenume_hot, varsta_hot) 
+values (407, 'Derichs', 'Roelof', 42);
+
+insert into hot_de_banci (id_hot, nume_hot, prenume_hot, varsta_hot) 
+values (408, 'Spitznagel', 'Tania', 19);
+
+insert into hot_de_banci (id_hot, nume_hot, prenume_hot, varsta_hot) 
+values (409, 'Jerome', 'Veronika', 48);
+
+create table judecator_sentinta_hot(
+    id_judecator number(6) references judecator(id_judecator),
+    id_sentinta number(6) references sentinta(id_sentinta),
+    id_hot number(6) references hot_de_banci(id_hot),
+    data_acordarii date,
+    primary key (id_judecator, id_sentinta, id_hot)
+);
+
+insert into judecator_sentinta_hot (id_judecator, id_sentinta, id_hot, data_acordarii) 
+values (100, 475, 405, to_date('17-Jun-00', 'DD-MON-RR'));
+
+insert into judecator_sentinta_hot (id_judecator, id_sentinta, id_hot, data_acordarii) 
+values (100, 476, 406, to_date('26-Mar-73', 'DD-MON-YY'));
+
+insert into judecator_sentinta_hot (id_judecator, id_sentinta, id_hot, data_acordarii) 
+values (100, 475, 407, to_date('13-Jan-98', 'DD-MON-YY'));
+
+insert into judecator_sentinta_hot (id_judecator, id_sentinta, id_hot, data_acordarii) 
+values (101, 477, 406, to_date('7-Dec-85', 'DD-MON-YY'));
+
+insert into judecator_sentinta_hot (id_judecator, id_sentinta, id_hot, data_acordarii) 
+values (102, 479, 409, to_date('15-Nov-95', 'DD-MON-YY'));
+
+insert into judecator_sentinta_hot (id_judecator, id_sentinta, id_hot, data_acordarii) 
+values (103, 478, 406, to_date('10-Apr-02', 'DD-MON-YY'));
+
+insert into judecator_sentinta_hot (id_judecator, id_sentinta, id_hot, data_acordarii) 
+values (104, 476, 409, to_date('12-Oct-08', 'DD-MON-YY'));
+
+insert into judecator_sentinta_hot (id_judecator, id_sentinta, id_hot, data_acordarii) 
+values (104, 477, 405, to_date('17-Jul-20', 'DD-MON-YY'));
+
+insert into judecator_sentinta_hot (id_judecator, id_sentinta, id_hot, data_acordarii) 
+values (104, 477, 406, to_date('25-May-09', 'DD-MON-YY'));
+
+insert into judecator_sentinta_hot (id_judecator, id_sentinta, id_hot, data_acordarii) 
+values (104, 479, 408, to_date('20-Jan-20', 'DD-MON-YY'));
+
+create table banca(
+    id_banca number(6) primary key,
+    denumire_banca varchar2(30) not null,
+    id_oras number(6),
+    id_tara varchar(5),
+    foreign key (id_oras, id_tara) references oras(id_oras, id_tara)
+);
+
+insert into banca (id_banca, denumire_banca, id_oras, id_tara) 
+values (500, 'Caixabank', 5, 'ES');
+
+insert into banca (id_banca, denumire_banca, id_oras, id_tara) 
+values (501, 'BCR', 2, 'RO');
+
+insert into banca (id_banca, denumire_banca, id_oras, id_tara) 
+values (502, 'Commerzbank', 3, 'DE');
+
+insert into banca (id_banca, denumire_banca, id_oras, id_tara) 
+values (503, 'Mizuho Bank', 1, 'JP');
+
+insert into banca (id_banca, denumire_banca, id_oras, id_tara) 
+values (504, 'Banque CPH', 4, 'BE');
+
+create table client(
+    id_client number(6) primary key,
+    id_banca number(6) references banca(id_banca),
+    nume_client varchar2(30) not null,
+    prenume_client varchar2(30),
+    varsta_client number(6)
+);
+
+insert into client (id_client, id_banca, nume_client, prenume_client, varsta_client) 
+values (300, 502, 'Baaiman', 'Nadine', 47);
+
+insert into client (id_client, id_banca, nume_client, prenume_client, varsta_client) 
+values (301, 501, 'Gabrielli', 'Jaimie', 25);
+
+insert into client (id_client, id_banca, nume_client, prenume_client, varsta_client) 
+values (302, 503, 'Boucher', 'Denise', 56);
+
+insert into client (id_client, id_banca, nume_client, prenume_client, varsta_client) 
+values (303, 500, 'Foster', 'Paul', 72);
+
+insert into client (id_client, id_banca, nume_client, prenume_client, varsta_client) 
+values (304, 504, 'Oliviero', 'Renato', 30);
+
+create table jaf(
+    id_jaf number(6) primary key,
+    id_banca number(6) references banca(id_banca),
+    data_jaf date not null
+);
+
+insert into jaf (id_jaf, id_banca, data_jaf) 
+values (800, 503, to_date('17-Jan-73', 'DD-MON-YY'));
+
+insert into jaf (id_jaf, id_banca, data_jaf) 
+values (801, 504, to_date('5-Dec-85', 'DD-MON-YY'));
+
+insert into jaf (id_jaf, id_banca, data_jaf) 
+values (802, 502, to_date('13-Nov-95', 'DD-MON-YY'));
+
+insert into jaf (id_jaf, id_banca, data_jaf) 
+values (803, 500, to_date('7-Apr-02', 'DD-MON-YY'));
+
+insert into jaf (id_jaf, id_banca, data_jaf) 
+values (804, 501, to_date('9-Oct-08', 'DD-MON-YY'));
+
+insert into jaf (id_jaf, id_banca, data_jaf) 
+values (805, 504, to_date('20-May-09', 'DD-MON-YY'));
+
+insert into jaf (id_jaf, id_banca, data_jaf) 
+values (806, 502, to_date('15-Jul-20', 'DD-MON-YY'));
+
+create table hot_jaf(
+    id_jaf number(6) references jaf(id_jaf),
+    id_hot number(6) references hot_de_banci(id_hot),
+    arma varchar2(30),
+    primary key (id_jaf, id_hot)
+);
+
+insert into hot_jaf (id_jaf, id_hot, arma) 
+values (800, 406, 'pistol');
+
+insert into hot_jaf (id_jaf, id_hot, arma) 
+values (801, 406, 'cutit');
+
+insert into hot_jaf (id_jaf, id_hot, arma) 
+values (802, 409, 'mitraliera');
+
+insert into hot_jaf (id_jaf, id_hot, arma) 
+values (802, 407, 'pusca');
+
+insert into hot_jaf (id_jaf, id_hot, arma)  
+values (802, 405, 'pistol');
+
+insert into hot_jaf (id_jaf, id_hot, arma) 
+values (803, 406, 'cutit');
+
+insert into hot_jaf (id_jaf, id_hot, arma) 
+values (804, 409, 'electrosoc');
+
+insert into hot_jaf (id_jaf, id_hot, arma) 
+values (805, 406, 'electrosoc');
+
+insert into hot_jaf (id_jaf, id_hot, arma) 
+values (806, 405, 'pistol');
+
+insert into hot_jaf (id_jaf, id_hot, arma) 
+values (806, 408, 'spray paralizant');
+
+create table martor(
+    id_martor number(6) primary key,
+    nume_martor varchar2(30) not null,
+    prenume_martor varchar2(30),
+    varsta_martor number(6)
+);
+
+insert into martor (id_martor, nume_martor, prenume_martor, varsta_martor) 
+values (305, 'Norman', 'Valerie', 23);
+
+insert into martor (id_martor, nume_martor, prenume_martor, varsta_martor) 
+values (306, 'Snow', 'Clarence', 68);
+
+insert into martor (id_martor, nume_martor, prenume_martor, varsta_martor) 
+values (307, 'Mendez', 'Andrea', 40);
+
+insert into martor (id_martor, nume_martor, prenume_martor, varsta_martor) 
+values (308, 'Wu', 'Viktoria', 34);
+
+insert into martor (id_martor, nume_martor, prenume_martor, varsta_martor) 
+values (309, 'Mendez', 'Erik', 49);
+
+insert into martor (id_martor, nume_martor, prenume_martor) 
+values (310, 'Dumitrescu', 'Dragos');
+
+create table sectie_politie(
+    id_sectie number(6) primary key,
+    denumire_sectie varchar2(35) not null
+);
+
+insert into sectie_politie (id_sectie, denumire_sectie) 
+values (600, 'Politia municipala Madrid');
+
+insert into sectie_politie (id_sectie, denumire_sectie) 
+values (601, 'Departamentul de politie Berlin');
+
+insert into sectie_politie (id_sectie, denumire_sectie) 
+values (602, 'Sectia de politie Saint Gilles');
+
+insert into sectie_politie (id_sectie, denumire_sectie) 
+values (603, 'Sectia de politie Osaka');
+
+insert into sectie_politie (id_sectie, denumire_sectie) 
+values (604, 'Sectia 2 Politie');
+
+create table politist(
+    id_politist number(6) primary key,
+    nume_politist varchar2(30) not null,
+    prenume_politist varchar2(30),
+    varsta_politist number(6),
+    data_angajarii date,
+    id_sectie number(6) references sectie_politie(id_sectie)
+);
+
+insert into politist (id_politist, id_sectie, nume_politist, prenume_politist, varsta_politist, data_angajarii) 
+values (SEQ_POLITIST.nextval, 600, 'Gimenez', 'Alejandro', 47, to_date('14-Jan-92', 'DD-MON-YY'));
+
+insert into politist (id_politist, id_sectie, nume_politist, prenume_politist, varsta_politist, data_angajarii) 
+values (SEQ_POLITIST.nextval, 601, 'Herrmann', 'Loreley', 75, to_date('25-Feb-64', 'DD-MON-YY'));
+
+insert into politist (id_politist, id_sectie, nume_politist, prenume_politist, varsta_politist, data_angajarii) 
+values (SEQ_POLITIST.nextval, 602, 'Piette', 'Janne', 63, to_date('1-Jun-76', 'DD-MON-YY'));
+
+insert into politist (id_politist, id_sectie, nume_politist, prenume_politist, varsta_politist, data_angajarii) 
+values (SEQ_POLITIST.nextval, 603, 'Iwamoto', 'Nishikawa', 48, to_date('11-Feb-91', 'DD-MON-YY'));
+
+insert into politist (id_politist, id_sectie, nume_politist, prenume_politist, varsta_politist, data_angajarii) 
+values (SEQ_POLITIST.nextval, 604, 'Voiculescu', 'Alina', 30, to_date('1-Mar-09', 'DD-MON-YY'));
+
+insert into politist (id_politist, id_sectie, nume_politist, prenume_politist, varsta_politist, data_angajarii) 
+values (SEQ_POLITIST.nextval, 604, 'Dumitrescu', 'Dragos', 38, to_date('1-Jun-05', 'DD-MON-YY'));
+
+create table martor_jaf(
+    id_jaf number(6) references jaf(id_jaf),
+    id_martor number(6) references martor(id_martor),
+    primary key (id_jaf, id_martor)
+);
+
+insert into martor_jaf (id_jaf, id_martor) 
+values (800, 306);
+
+insert into martor_jaf (id_jaf, id_martor) 
+values (801, 306);
+
+insert into martor_jaf (id_jaf, id_martor) 
+values (802, 307);
+
+insert into martor_jaf (id_jaf, id_martor) 
+values (802, 309);
+
+insert into martor_jaf (id_jaf, id_martor) 
+values (803, 305);
+
+insert into martor_jaf (id_jaf, id_martor) 
+values (804, 308);
+
+insert into martor_jaf (id_jaf, id_martor) 
+values (804, 305);
+
+insert into martor_jaf (id_jaf, id_martor) 
+values (805, 308);
+
+insert into martor_jaf (id_jaf, id_martor) 
+values (806, 308);
+
+insert into martor_jaf (id_jaf, id_martor) 
+values (806, 309);
+
+create table arestare_hot(
+    id_hot number(6) references hot_de_banci(id_hot),
+    id_politist number(6) references politist(id_politist),
+    data_arestarii date,
+    primary key (id_hot, id_politist)
+);
+
+insert into arestare_hot (id_hot, id_politist, data_arestarii) 
+values (405, 605, to_date('30-Jun-00', 'DD-MON-YY'));
+
+insert into arestare_hot (id_hot, id_politist, data_arestarii) 
+values (405, 609, to_date('20-Jul-20', 'DD-MON-YY'));
+
+insert into arestare_hot (id_hot, id_politist, data_arestarii) 
+values (406, 606, to_date('5-Apr-73', 'DD-MON-YY'));
+
+insert into arestare_hot (id_hot, id_politist, data_arestarii) 
+values (406, 607, to_date('30-Dec-85', 'DD-MON-YY'));
+
+insert into arestare_hot (id_hot, id_politist, data_arestarii) 
+values (406, 605, to_date('25-Apr-02', 'DD-MON-YY'));
+
+insert into arestare_hot (id_hot, id_politist, data_arestarii) 
+values (406, 609, to_date('26-May-09', 'DD-MON-YY'));
+
+insert into arestare_hot (id_hot, id_politist, data_arestarii) 
+values (407, 608, to_date('29-Jan-98', 'DD-MON-YY'));
+
+insert into arestare_hot (id_hot, id_politist, data_arestarii) 
+values (408, 609, to_date('27-Jan-20', 'DD-MON-YY'));
+
+insert into arestare_hot (id_hot, id_politist, data_arestarii) 
+values (409, 608, to_date('15-Dec-95', 'DD-MON-YY'));
+
+insert into arestare_hot (id_hot, id_politist, data_arestarii) 
+values (409, 609, to_date('15-Oct-08', 'DD-MON-YY'));
+
+commit;

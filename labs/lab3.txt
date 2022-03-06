@@ -1,0 +1,8 @@
+--1
+select e1.last_name, to_char(e1.hire_date, 'MONTH') as Luna,
+extract(YEAR FROM e1.hire_date) as An
+from employees e1, employees e2
+where e1.department_id = e2.department_id and
+lower(e2.last_name) = 'gates' and
+lower(e1.last_name) != 'gates' and
+lower(e1.last_name) like '%a%';
